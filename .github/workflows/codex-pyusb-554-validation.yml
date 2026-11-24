@@ -1,0 +1,29 @@
+name: PyUSB Python 3.9 runner validation
+on:
+  push:
+    branches: [codex/validate-pyusb-554-20261124]
+permissions:
+  contents: read
+jobs:
+  tox:
+    if: github.repository == 'dhairyajangir/pyusb'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Check out the PR head
+        run: |
+          test "$(git rev-parse HEAD^)" = 0ab96527ac6bcb0d1e182db44c3c09520c195a2d
+          git checkout --detach HEAD^
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Run the Python 3.9 tox environment
+        run: |
+          python --version
+          python -m pip install 'setuptools>=30.3.0' tox
+          tox -e py39
